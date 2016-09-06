@@ -16,13 +16,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
+import ru.n_develop.tower_lite.screens.GameScreen;
 import ru.n_develop.tower_lite.screens.MainMenu;
 
 public class N_Tower_Lite extends Game
 {
 
 	private OrthographicCamera camera;
-	private SpriteBatch batch;
+	public SpriteBatch batch;
 	private Stage stage; //** stage holds the Button **//
 	private TextureAtlas buttonsAtlas; //** image of buttons **//
 	private Skin buttonSkin; //** images are used as skins of the button **//
@@ -36,10 +37,12 @@ public class N_Tower_Lite extends Game
 	@Override
 	public void create () {
 
-//		camera = new OrthographicCamera();
-//		camera.setToOrtho(false, 800, 480); //** w/h ratio = 1.66 **//
-//
-//		batch = new SpriteBatch();
+
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, 720, 1280); //** w/h ratio = 1.66 **//
+		camera.setToOrtho(false, 400, 400); //** w/h ratio = 1.66 **//
+
+		batch = new SpriteBatch();
 //
 //		buttonsAtlas = new TextureAtlas("buttons.pack"); //** button atlas image **//
 //		buttonSkin = new Skin();
@@ -87,16 +90,13 @@ public class N_Tower_Lite extends Game
 	}
 
 	@Override
-	public void dispose() {
-
-
+	public void dispose()
+	{
 	}
 
 	@Override
 	public void render ()
 	{
 		super.render();
-
-
 	}
 }

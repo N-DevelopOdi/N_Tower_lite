@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ru.n_develop.tower_lite.N_Tower_Lite;
+import ru.n_develop.tower_lite.screens.GameScreen;
 
 /**
  * Created by Dima on 22.08.2016.
@@ -34,6 +35,8 @@ public class MainMenu implements Screen
     private Table table;
     private Label.LabelStyle labelStyle;
 
+    int width;
+
     private TextureAtlas buttonsAtlas; //** image of buttons **//
 
 
@@ -46,13 +49,13 @@ public class MainMenu implements Screen
 
         // Скин для кнопок. Изображения вы найдете по ссылке внизу статьи
         Skin skin = new Skin();
-        TextureAtlas buttonAtlas = new TextureAtlas(Gdx.files.internal("images/game/images.pack"));
+        TextureAtlas buttonAtlas = new TextureAtlas(Gdx.files.internal("images/buttons.pack"));
         skin.addRegions(buttonAtlas);
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = game.font;
-        textButtonStyle.up = skin.getDrawable("button-up");
-        textButtonStyle.down = skin.getDrawable("button-down");
-        textButtonStyle.checked = skin.getDrawable("button-up");
+        textButtonStyle.up = skin.getDrawable("but_about");
+        textButtonStyle.down = skin.getDrawable("but_der");
+        textButtonStyle.checked = skin.getDrawable("but_about");
 
         labelStyle = new Label.LabelStyle();
         labelStyle.font = game.font;
@@ -63,22 +66,22 @@ public class MainMenu implements Screen
 
 
         // Кнопка играть. Добавляем новый listener, чтобы слушать события касания. После касания, выбрирует и переключает на экран выбора уровней, а этот экран уничтожается
-        play = new TextButton("Играть", textButtonStyle);
+        play = new TextButton("", textButtonStyle);
         play.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.vibrate(20);
+//                Gdx.input.vibrate(20);
                 return true;
             };
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new MainMenu(game));
+                game.setScreen(new GameScreen(game));
                 dispose();
             };
         });
 
         // Кнопка выхода. Вообще это не обязательно. Просто для красоты, ибо обычно пользователь жмет на кнопку телефона.
-        exit = new TextButton("Выход", textButtonStyle);
+        exit = new TextButton("", textButtonStyle);
         exit.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -91,10 +94,23 @@ public class MainMenu implements Screen
                 dispose();
             };
         });
-        table.add(play);
-        table.row();
-        table.add(exit);
-        stage.addActor(table);
+//        table.add(play);
+//        table.row();
+//        table.row();
+//        table.row();
+//        table.add(exit);
+        width = Gdx.graphics.getWidth();
+
+
+//        Gdx.app.log("ww", String.valueOf(width));
+        play.setX(Gdx.graphics.getWidth() / 2 - play.getWidth() / 2);
+        play.setY(Gdx.graphics.getHeight() / 2 - play.getHeight() / 2 + 50);
+        exit.setX(Gdx.graphics.getWidth() / 2 - play.getWidth() / 2);
+        exit.setY(Gdx.graphics.getHeight() / 2 - play.getHeight() / 2 - 50);
+
+
+        stage.addActor(play);
+        //stage.addActor(exit);
 
         Gdx.input.setInputProcessor(stage);  // Устанавливаем нашу сцену основным процессором для ввода (нажатия, касания, клавиатура etc.)
         Gdx.input.setCatchBackKey(true); // Это нужно для того, чтобы пользователь возвращался назад, в случае нажатия на кнопку Назад на своем устройстве
@@ -105,7 +121,9 @@ public class MainMenu implements Screen
     public void render(float delta)
     {
 
-        Gdx.app.log("kk", "kk");
+//        Gdx.app.log("kk", "kk");
+//        Gdx.app.log("ww", String.valueOf(play.getX()));
+
         // Очищаем экран и устанавливаем цвет фона черным
         Gdx.gl.glClearColor(0, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

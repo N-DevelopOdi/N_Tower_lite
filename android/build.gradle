@@ -1,5 +1,5 @@
 android {
-    compileSdkVersion 23
+    compileSdkVersion 21
     buildToolsVersion "23.0.2"
     sourceSets {
         main {
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "ru.n_develop.tower_lite"
         minSdkVersion 8
-        targetSdkVersion 23
+        targetSdkVersion 21
     }
 }
 

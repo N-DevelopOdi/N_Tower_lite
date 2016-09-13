@@ -75,7 +75,6 @@ public class GameScreen implements Screen
 
         batch = new SpriteBatch();
 
-
         // Скин для кнопок. Изображения вы найдете по ссылке внизу статьи
         Skin skin = new Skin();
         TextureAtlas buttonAtlas = new TextureAtlas(Gdx.files.internal("images/bloxx/bloxx.pack"));
@@ -85,9 +84,6 @@ public class GameScreen implements Screen
         textButtonStyle.up = skin.getDrawable("bloxxRed");
 
         bloxx1 = new Texture("images/bloxx/bloxxx.png");
-
-        Gdx.app.log("w", String.valueOf(bloxx1.getWidth()) );
-        Gdx.app.log("h", String.valueOf(bloxx1.getHeight()) );
 
         labelStyle = new Label.LabelStyle();
         labelStyle.font = game.font;
@@ -110,20 +106,8 @@ public class GameScreen implements Screen
 
     private void spawnRaindrop(int number)
     {
-
         X[number] = (int) (Gdx.graphics.getWidth() / 2 - bloxx.getWidth() / 2);
         Y[number] = (int) (Gdx.graphics.getHeight() - 50 - bloxx.getHeight() / 2);
-
-//        Rectangle gameBlox = new Rectangle();
-//        gameBlox.x = (Gdx.graphics.getWidth() / 2 - bloxx.getWidth() / 2);
-//        gameBlox.y = (Gdx.graphics.getHeight() - 50 - bloxx.getHeight() / 2);
-////        raindrop.x = MathUtils.random(0,600);
-////        raindrop.y = MathUtils.random(0,400);
-//
-//        gameBlox.height = 64;
-//        gameBlox.width = 64;
-//        blox.add(gameBlox);
-//        lastDropTime = TimeUtils.nanoTime();
     }
 
     @Override
@@ -138,24 +122,28 @@ public class GameScreen implements Screen
         game.batch.begin();
 
         if(Gdx.input.isTouched()) {
-            Gdx.app.log("numberBloxx", String.valueOf(numberBloxx));
             drop = true;
             block[numberBloxx] = 1; // 1 - ачинает падать
 
         }
-//        Gdx.app.log("size", String.valueOf(blox.items));
-
 
         if (block[numberBloxx] == 1)
         {
-            Y[numberBloxx] -= 200 * Gdx.graphics.getDeltaTime();
+            Y[numberBloxx] -= 300 * Gdx.graphics.getDeltaTime();
         }
-
-
 
         for (int i = 0; i <= numberBloxx; i++)
         {
-            if (Y[numberBloxx] < 20 && block[numberBloxx] == 1)
+            if (numberBloxx == 0)
+            {
+                if (Y[numberBloxx] < 20 && block[numberBloxx] == 1)
+                {
+                    block[numberBloxx] = 2;// прекратил падать
+                    numberBloxx++;
+                    spawnRaindrop(numberBloxx);
+                }
+            }
+            else if (Y[numberBloxx] < Y[numberBloxx-1]+bloxx1.getHeight() && block[numberBloxx] == 1)
             {
                 block[numberBloxx] = 2;// прекратил падать
                 numberBloxx++;
@@ -164,29 +152,6 @@ public class GameScreen implements Screen
 
             game.batch.draw(bloxx1, X[i], Y[i]);
         }
-
-
-
-
-//        for (Rectangle gameBlox : blox)
-//        {
-//            if (block[numberBloxx] == 1)
-//            {
-//                gameBlox.y -= 200 * Gdx.graphics.getDeltaTime();
-//            }
-//
-//            if (gameBlox.getY() < 20 && block[numberBloxx] == 1)
-//            {
-//                block[numberBloxx] = 2;// прекратил падать
-//                numberBloxx++;
-//                spawnRaindrop(numberBloxx);
-//
-//            }
-////            gameBlox.y -= 200 * Gdx.graphics.getDeltaTime();
-//            game.batch.draw(bloxx1, gameBlox.x, gameBlox.y);
-//
-//        }
-
         game.batch.end();
 
         // Рисуем сцену

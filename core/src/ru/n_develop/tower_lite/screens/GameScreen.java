@@ -1,6 +1,7 @@
 package ru.n_develop.tower_lite.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -28,6 +29,9 @@ public class GameScreen implements Screen
 {
     final N_Tower_Lite game;
 
+    private float    rotationSpeed;
+    private float    UpCamera;
+
     // Объявим все необходимые объекты
     Stage stage;
     TextButton play, exit, bloxx;
@@ -48,11 +52,13 @@ public class GameScreen implements Screen
     int width;
     TextureAtlas buttonsAtlas; //** image of buttons **/
 
-    public GameScreen(final N_Tower_Lite gam)
+    public GameScreen(final N_Tower_Lite gam, int count)
     {
-        block = new int [20];
-        X = new int[20];
-        Y = new int[20];
+        rotationSpeed = 0.5f;
+        UpCamera = 40;
+        block = new int [count];
+        X = new int[count];
+        Y = new int[count];
         for (int i = 0; i < block.length; i++)
         {
             block[i] = 0; // 0 - не тронутый готовый падать с верху;
@@ -66,7 +72,7 @@ public class GameScreen implements Screen
 
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 720, 1280);// задаем размер показываюмего окна
+//        camera.setToOrtho(false, 720, 1280);// задаем размер показываюмего окна
         camera.setToOrtho(false, 600, 600);// задаем размер показываюмего окна
 
         game = gam;
@@ -107,12 +113,18 @@ public class GameScreen implements Screen
     private void spawnRaindrop(int number)
     {
         X[number] = (int) (Gdx.graphics.getWidth() / 2 - bloxx.getWidth() / 2);
-        Y[number] = (int) (Gdx.graphics.getHeight() - 50 - bloxx.getHeight() / 2);
+        Y[number] = (int) (Gdx.graphics.getHeight() * 0.8 + 64 * number+1 - bloxx.getHeight() / 2);
+//        Y[number] = (int) (500 + 64 * number - bloxx.getHeight() / 2);
+
+        Gdx.app.log("Y - ", String.valueOf(Y[number]) + " number - " + String.valueOf(number));
+//        Gdx.app.log("numberBloxx", String.valueOf(numberBloxx));
+
     }
 
     @Override
     public void render(float delta)
     {
+        handleInput();
         // Очищаем экран и устанавливаем цвет фона черным
         Gdx.gl.glClearColor(0, 1, 0x2, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -129,7 +141,7 @@ public class GameScreen implements Screen
 
         if (block[numberBloxx] == 1)
         {
-            Y[numberBloxx] -= 300 * Gdx.graphics.getDeltaTime();
+            Y[numberBloxx] -= 500 * Gdx.graphics.getDeltaTime();
         }
 
         for (int i = 0; i <= numberBloxx; i++)
@@ -147,6 +159,8 @@ public class GameScreen implements Screen
             {
                 block[numberBloxx] = 2;// прекратил падать
                 numberBloxx++;
+                if (camera.position.y < 1024)  // нужно сделать функцию с анимацией опускания
+                    camera.translate(0, UpCamera, 0);
                 spawnRaindrop(numberBloxx);
             }
 
@@ -158,6 +172,39 @@ public class GameScreen implements Screen
         stage.act(delta);
         stage.draw();
     }
+
+
+    private void handleInput() {
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+            camera.zoom += 0.02;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            camera.zoom -= 0.02;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            if (camera.position.x > 0)
+                camera.translate(-3, 0, 0);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            if (camera.position.x < 1024)
+                camera.translate(3, 0, 0);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            if (camera.position.y > 0)
+                camera.translate(0, -3, 0);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            if (camera.position.y < 1024)
+                camera.translate(0, 3, 0);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+            camera.rotate(-rotationSpeed, 0, 0, 1);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
+            camera.rotate(rotationSpeed, 0, 0, 1);
+        }
+    }
+
 
     @Override
     public void dispose()

@@ -43,6 +43,7 @@ public class MainMenu implements Screen
     public MainMenu (final N_Tower_Lite gam)
     {
         game = gam;
+        //тест
 
         // Сцена -- она поможет существенно уменьшить количество кода и упростить нам жизнь
         stage = new Stage(new ScreenViewport());

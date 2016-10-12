@@ -47,41 +47,41 @@ public class GameScreen implements Screen
     int X [];
     int Y [];
 
+    int test = 0;
+
     Boolean drop = false;
     int block []  ; // двигается ли текущий блок
-    int width;
+    Boolean moveCamera; // Передвинули мы уже камеру
+//    int width;
     TextureAtlas buttonsAtlas; //** image of buttons **/
+
+    int width = 480;
+    int height = 800;
+
 
     public GameScreen(final N_Tower_Lite gam, int count)
     {
+        this.game = gam;
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 480, 800);// задаем размер показываюмего окна
+
         rotationSpeed = 0.5f;
-        UpCamera = 40;
+        UpCamera = 64;
         block = new int [count];
         X = new int[count];
         Y = new int[count];
         for (int i = 0; i < block.length; i++)
         {
             block[i] = 0; // 0 - не тронутый готовый падать с верху;
-//            testBlox[i].x = (Gdx.graphics.getWidth() / 2 - bloxx.getWidth() / 2);
-//            testBlox[i].y = (Gdx.graphics.getHeight() - 50 - bloxx.getHeight() / 2);
-//            testBlox[i].width = 64;
-//            testBlox[i].height = 64;
         }
 
-
-
-
-        camera = new OrthographicCamera();
-//        camera.setToOrtho(false, 720, 1280);// задаем размер показываюмего окна
-        camera.setToOrtho(false, 600, 600);// задаем размер показываюмего окна
-
-        game = gam;
-        // Сцена -- она поможет существенно уменьшить количество кода и упростить нам жизнь
+//       Сцена -- она поможет существенно уменьшить количество кода и упростить нам жизнь
         stage = new Stage(new ScreenViewport());
 
         batch = new SpriteBatch();
 
-        // Скин для кнопок. Изображения вы найдете по ссылке внизу статьи
+//         Скин для кнопок. Изображения вы найдете по ссылке внизу статьи
         Skin skin = new Skin();
         TextureAtlas buttonAtlas = new TextureAtlas(Gdx.files.internal("images/bloxx/bloxx.pack"));
         skin.addRegions(buttonAtlas);
@@ -89,7 +89,7 @@ public class GameScreen implements Screen
         textButtonStyle.font = game.font;
         textButtonStyle.up = skin.getDrawable("bloxxRed");
 
-        bloxx1 = new Texture("images/bloxx/bloxxx.png");
+        bloxx1 = new Texture("images/bloxx/blox.png");
 
         labelStyle = new Label.LabelStyle();
         labelStyle.font = game.font;
@@ -98,7 +98,7 @@ public class GameScreen implements Screen
 
         bloxx = new TextButton("", textButtonStyle);
 
-        width = Gdx.graphics.getWidth();
+//        width = Gdx.graphics.getWidth();
 
         Gdx.input.setInputProcessor(stage);  // Устанавливаем нашу сцену основным процессором для ввода (нажатия, касания, клавиатура etc.)
         Gdx.input.setCatchBackKey(true); // Это нужно для того, чтобы пользователь возвращался назад, в случае нажатия на кнопку Назад на своем устройстве
@@ -112,11 +112,12 @@ public class GameScreen implements Screen
 
     private void spawnRaindrop(int number)
     {
-        X[number] = (int) (Gdx.graphics.getWidth() / 2 - bloxx.getWidth() / 2);
-        Y[number] = (int) (Gdx.graphics.getHeight() * 0.8 + 64 * number+1 - bloxx.getHeight() / 2);
-//        Y[number] = (int) (500 + 64 * number - bloxx.getHeight() / 2);
+        X[number] = (int) (width / 2 - bloxx.getWidth() / 2);
+//        Y[number] = (int) (height * 0.8 + UpCamera * number+1 - bloxx.getHeight() / 2);
+        Y[number] = (int) (camera.position.y * 2 - bloxx.getHeight() / 2);
 
-        Gdx.app.log("Y - ", String.valueOf(Y[number]) + " number - " + String.valueOf(number));
+        Gdx.app.log("Y - ", String.valueOf(Y[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportHeight));
+        Gdx.app.log("X - ", String.valueOf(X[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportWidth));
 //        Gdx.app.log("numberBloxx", String.valueOf(numberBloxx));
 
     }
@@ -126,22 +127,41 @@ public class GameScreen implements Screen
     {
         handleInput();
         // Очищаем экран и устанавливаем цвет фона черным
-        Gdx.gl.glClearColor(0, 1, 0x2, 0);
+        Gdx.gl.glClearColor(0, 1, 1, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
-        if(Gdx.input.isTouched()) {
+        if(Gdx.input.isTouched())
+        {
             drop = true;
             block[numberBloxx] = 1; // 1 - ачинает падать
-
         }
 
         if (block[numberBloxx] == 1)
         {
-            Y[numberBloxx] -= 500 * Gdx.graphics.getDeltaTime();
+            Y[numberBloxx] -= 1500 * Gdx.graphics.getDeltaTime();
+        }
+
+        if (numberBloxx > 1)
+        {
+            if ((Y[numberBloxx-1] > camera.position.y ) && !moveCamera )
+            {
+//                Gdx.app.log("CAMera ", String.valueOf(Y[numberBloxx-1]));
+                upCamera();
+//                float i = 0;
+//                while (i < UpCamera)
+//                {
+//                    i += 0.1f;
+//                    camera.translate(0, 0.001f, 0);
+//
+//                    Gdx.app.log("CAMera ", String.valueOf(i));
+//
+//                }
+//
+//                moveCamera = true;
+            }
         }
 
         for (int i = 0; i <= numberBloxx; i++)
@@ -158,9 +178,14 @@ public class GameScreen implements Screen
             else if (Y[numberBloxx] < Y[numberBloxx-1]+bloxx1.getHeight() && block[numberBloxx] == 1)
             {
                 block[numberBloxx] = 2;// прекратил падать
+                moveCamera = false;
                 numberBloxx++;
-                if (camera.position.y < 1024)  // нужно сделать функцию с анимацией опускания
-                    camera.translate(0, UpCamera, 0);
+                if (camera.position.y < 1024)
+                {
+                    // нужно сделать функцию с анимацией опускания
+//                    upCamera();
+
+                }
                 spawnRaindrop(numberBloxx);
             }
 
@@ -168,9 +193,23 @@ public class GameScreen implements Screen
         }
         game.batch.end();
 
-        // Рисуем сцену
+//         Рисуем сцену
         stage.act(delta);
         stage.draw();
+
+
+
+
+
+    }
+
+    private void upCamera()
+    {
+        camera.translate(0, UpCamera, 0);
+        moveCamera = true;
+        Gdx.app.log("camera.position.y - ", String.valueOf(camera.position.y));
+        Gdx.app.log("camera.position.x - ", String.valueOf(camera.position.x));
+        Gdx.app.log("Y - ", String.valueOf(Y[numberBloxx]));
     }
 
 
@@ -192,10 +231,14 @@ public class GameScreen implements Screen
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (camera.position.y > 0)
                 camera.translate(0, -3, 0);
+            Gdx.app.log("camera.position.y - ", String.valueOf(camera.position.y));
+
         }
         if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (camera.position.y < 1024)
                 camera.translate(0, 3, 0);
+            Gdx.app.log("camera.position.y - ", String.valueOf(camera.position.y));
+
         }
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             camera.rotate(-rotationSpeed, 0, 0, 1);

@@ -4,12 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -18,15 +18,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ru.n_develop.tower_lite.N_Tower_Lite;
-import ru.n_develop.tower_lite.screens.GameScreen;
-
 /**
  * Created by Dima on 22.08.2016.
  */
 public class MainMenu implements Screen
 {
-
-
     final N_Tower_Lite game;
 
     // Объявим все необходимые объекты
@@ -39,6 +35,13 @@ public class MainMenu implements Screen
 
     private TextureAtlas buttonsAtlas; //** image of buttons **//
 
+    Rectangle bucket;
+    Texture bucketImage;
+    OrthographicCamera camera;
+
+    SpriteBatch batch;
+
+
 
     public MainMenu (final N_Tower_Lite gam)
     {
@@ -46,6 +49,11 @@ public class MainMenu implements Screen
 
         // Сцена -- она поможет существенно уменьшить количество кода и упростить нам жизнь
         stage = new Stage(new ScreenViewport());
+
+        batch = new SpriteBatch();
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 480, 800);// задаем размер показываюмего окна
 
         // Скин для кнопок. Изображения вы найдете по ссылке внизу статьи
         Skin skin = new Skin();
@@ -63,7 +71,13 @@ public class MainMenu implements Screen
         table.setFillParent(true);
 
 
+        bucketImage = new Texture("bucket.png");
 
+        bucket = new Rectangle();
+        bucket.x = 800/2 - 64/2; // по центру
+        bucket.y = 20;
+        bucket.width = 64;
+        bucket.height = 64;
 
         // Кнопка играть. Добавляем новый listener, чтобы слушать события касания. После касания, выбрирует и переключает на экран выбора уровней, а этот экран уничтожается
         play = new TextButton("", textButtonStyle);
@@ -85,7 +99,7 @@ public class MainMenu implements Screen
         exit.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.vibrate(20);
+//                Gdx.input.vibrate(20);
                 return true;
             };
             @Override
@@ -120,13 +134,16 @@ public class MainMenu implements Screen
     @Override
     public void render(float delta)
     {
-
-//        Gdx.app.log("kk", "kk");
 //        Gdx.app.log("ww", String.valueOf(play.getX()));
 
         // Очищаем экран и устанавливаем цвет фона черным
         Gdx.gl.glClearColor(0, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+        game.batch.begin();
+        game.batch.draw(bucketImage, bucket.x, bucket.y);
+        game.batch.end();
 
         // Рисуем сцену
         stage.act(delta);

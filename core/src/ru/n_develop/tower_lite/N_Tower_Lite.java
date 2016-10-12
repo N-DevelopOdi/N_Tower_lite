@@ -39,8 +39,8 @@ public class N_Tower_Lite extends Game
 
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 720, 1280); //** w/h ratio = 1.66 **//
-		camera.setToOrtho(false, 400, 400); //** w/h ratio = 1.66 **//
+		camera.setToOrtho(false, 720, 1080);
+//		camera.setToOrtho(false, 400, 400);
 
 		batch = new SpriteBatch();
 //

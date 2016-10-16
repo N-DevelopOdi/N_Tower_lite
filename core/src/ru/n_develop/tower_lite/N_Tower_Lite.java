@@ -16,6 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
+import com.badlogic.gdx.sql.*;
+
+import ru.n_develop.tower_lite.DB.DatabaseHelper;
 import ru.n_develop.tower_lite.screens.GameScreen;
 import ru.n_develop.tower_lite.screens.MainMenu;
 
@@ -36,6 +39,26 @@ public class N_Tower_Lite extends Game
 
 	@Override
 	public void create () {
+
+
+		// СОЗДАЕМ БД ТУТ ПРОВЕРЯЕМ ЕСЛИ ЕЕ НЕТ ТО СОЗДАЕМ ИНАЧЕ НЕЧЕГО
+
+		// работа с SQLite
+
+//        dbHelper = new DatabaseHelper(this, "mydatabase.db", null, 1);
+//        SQLiteDatabase sdb;
+//        sdb = dbHelper.getReadableDatabase();
+//
+//        mDatabaseHelper = new DatabaseHelper(this, "mydatabase.db", null, 1);
+//
+//        mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
+//
+//        ContentValues newValues = new ContentValues();
+//        // Задайте значения для каждого столбца
+//        newValues.put(DatabaseHelper.NAME_COLUMN, "Рыжик");
+//        // Вставляем данные в таблицу
+//        mSqLiteDatabase.insert("cats", null, newValues);
+
 
 
 		camera = new OrthographicCamera();

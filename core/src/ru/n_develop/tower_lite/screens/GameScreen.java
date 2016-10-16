@@ -83,7 +83,7 @@ public class GameScreen implements Screen
         textButtonStyle.font = game.font;
         textButtonStyle.up = skin.getDrawable("bloxxRed");
 
-        bloxx1 = new Texture("images/bloxx/bloxxx.png");
+        bloxx1 = new Texture("images/bloxx/bloxx.png");
 
         labelStyle = new Label.LabelStyle();
         labelStyle.font = game.font;

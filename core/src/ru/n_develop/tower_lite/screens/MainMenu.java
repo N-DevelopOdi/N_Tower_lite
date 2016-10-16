@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ru.n_develop.tower_lite.N_Tower_Lite;
 import ru.n_develop.tower_lite.screens.GameScreen;
+import ru.n_develop.tower_lite.DB.DatabaseHelper;
 
 /**
  * Created by Dima on 22.08.2016.
@@ -36,6 +37,8 @@ public class MainMenu implements Screen
     private Label.LabelStyle labelStyle;
 
     int width;
+
+    private DatabaseHelper DB;
 
     private TextureAtlas buttonsAtlas; //** image of buttons **//
 
@@ -76,6 +79,8 @@ public class MainMenu implements Screen
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 game.setScreen(new GameScreen(game));
+                //Запись в БД
+                DB = new DatabaseHelper();
                 dispose();
             };
         });

@@ -1,4 +1,4 @@
-package ru.n_develop.tower_lite.screens;
+package ru.n_develop.tower_lite.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -21,28 +21,29 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ru.n_develop.tower_lite.N_Tower_Lite;
+import ru.n_develop.tower_lite.sprintes.Blox;
 
 /**
  * Created by Dima on 22.08.2016.
  */
-public class GameScreen implements Screen
+public class GameScreen extends State
 {
-    final N_Tower_Lite game;
 
     private float    rotationSpeed;
     private float    UpCamera;
 
+    private Blox bloxclass;
+    private Array<Blox> bloxArray;
+
     // Объявим все необходимые объекты
     Stage stage;
-    TextButton play, exit, bloxx;
+    TextButton play, exit;
     Texture bloxx1;
     SpriteBatch batch ;
     OrthographicCamera camera;
     int numberBloxx = 0;
     Table table;
     Label.LabelStyle labelStyle;
-
-    Array<Rectangle> blox;
 
     int X [];
     int Y [];
@@ -52,19 +53,20 @@ public class GameScreen implements Screen
     Boolean drop = false;
     int block []  ; // двигается ли текущий блок
     Boolean moveCamera; // Передвинули мы уже камеру
-//    int width;
-    TextureAtlas buttonsAtlas; //** image of buttons **/
 
     int width = 480;
     int height = 800;
 
 
-    public GameScreen(final N_Tower_Lite gam, int count)
+    public GameScreen(GameStageManager gsm, int count)
     {
-        this.game = gam;
+        super(gsm);
+
+        bloxArray = new Array<Blox>();
+
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 480, 800);// задаем размер показываюмего окна
+        camera.setToOrtho(false, N_Tower_Lite.WIDHT / 2, N_Tower_Lite.HEIGTH / 2);// задаем размер показываюмего окна
 
         rotationSpeed = 0.5f;
         UpCamera = 64;
@@ -86,17 +88,13 @@ public class GameScreen implements Screen
         TextureAtlas buttonAtlas = new TextureAtlas(Gdx.files.internal("images/bloxx/bloxx.pack"));
         skin.addRegions(buttonAtlas);
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = game.font;
         textButtonStyle.up = skin.getDrawable("bloxxRed");
 
         bloxx1 = new Texture("images/bloxx/blox.png");
 
         labelStyle = new Label.LabelStyle();
-        labelStyle.font = game.font;
         table = new Table();
         table.setFillParent(true);
-
-        bloxx = new TextButton("", textButtonStyle);
 
 //        width = Gdx.graphics.getWidth();
 
@@ -104,116 +102,40 @@ public class GameScreen implements Screen
         Gdx.input.setCatchBackKey(true); // Это нужно для того, чтобы пользователь возвращался назад, в случае нажатия на кнопку Назад на своем устройстве
 
 
-        blox = new Array<Rectangle>();
+//        blox = new Array<Rectangle>();
 
-        spawnRaindrop(numberBloxx);
+        spawnRaindrop();
     }
 
 
-    private void spawnRaindrop(int number)
+    private void spawnRaindrop()
     {
-        X[number] = (int) (width / 2 - bloxx.getWidth() / 2);
-//        Y[number] = (int) (height * 0.8 + UpCamera * number+1 - bloxx.getHeight() / 2);
-        Y[number] = (int) (camera.position.y * 2 - bloxx.getHeight() / 2);
+        bloxArray.add(new Blox(50,300));
 
-        Gdx.app.log("Y - ", String.valueOf(Y[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportHeight));
-        Gdx.app.log("X - ", String.valueOf(X[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportWidth));
+        Gdx.app.log("numberBloxx", String.valueOf(bloxArray.size));
+
+//        X[number] = (int) (width / 2 - bloxx1.getWidth() / 2);
+//        Y[number] = (int) (height * 0.8 + UpCamera * number+1 - bloxx.getHeight() / 2);
+//        Y[number] = (int) (camera.position.y * 2 - bloxx1.getHeight() / 2);
+
+//        Gdx.app.log("Y - ", String.valueOf(Y[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportHeight));
+//        Gdx.app.log("X - ", String.valueOf(X[number]) + " number - " + String.valueOf(number) + " camera.y - "+ String.valueOf(camera.viewportWidth));
 //        Gdx.app.log("numberBloxx", String.valueOf(numberBloxx));
 
     }
 
     @Override
-    public void render(float delta)
+    protected void handlerInput()
     {
-        handleInput();
-        // Очищаем экран и устанавливаем цвет фона черным
-        Gdx.gl.glClearColor(0, 1, 1, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-
-        if(Gdx.input.isTouched())
+        if (Gdx.input.justTouched())
         {
-            drop = true;
-            block[numberBloxx] = 1; // 1 - ачинает падать
+            if (bloxArray.peek().getStatus() != 1)
+            bloxArray.peek().setStatus(1);
+
+            int status = bloxArray.peek().getStatus();
+            Gdx.app.log("status", String.valueOf(status));
+
         }
-
-        if (block[numberBloxx] == 1)
-        {
-            Y[numberBloxx] -= 1500 * Gdx.graphics.getDeltaTime();
-        }
-
-        if (numberBloxx > 1)
-        {
-            if ((Y[numberBloxx-1] > camera.position.y ) && !moveCamera )
-            {
-//                Gdx.app.log("CAMera ", String.valueOf(Y[numberBloxx-1]));
-                upCamera();
-//                float i = 0;
-//                while (i < UpCamera)
-//                {
-//                    i += 0.1f;
-//                    camera.translate(0, 0.001f, 0);
-//
-//                    Gdx.app.log("CAMera ", String.valueOf(i));
-//
-//                }
-//
-//                moveCamera = true;
-            }
-        }
-
-        for (int i = 0; i <= numberBloxx; i++)
-        {
-            if (numberBloxx == 0)
-            {
-                if (Y[numberBloxx] < 20 && block[numberBloxx] == 1)
-                {
-                    block[numberBloxx] = 2;// прекратил падать
-                    numberBloxx++;
-                    spawnRaindrop(numberBloxx);
-                }
-            }
-            else if (Y[numberBloxx] < Y[numberBloxx-1]+bloxx1.getHeight() && block[numberBloxx] == 1)
-            {
-                block[numberBloxx] = 2;// прекратил падать
-                moveCamera = false;
-                numberBloxx++;
-                if (camera.position.y < 1024)
-                {
-                    // нужно сделать функцию с анимацией опускания
-//                    upCamera();
-
-                }
-                spawnRaindrop(numberBloxx);
-            }
-
-            game.batch.draw(bloxx1, X[i], Y[i]);
-        }
-        game.batch.end();
-
-//         Рисуем сцену
-        stage.act(delta);
-        stage.draw();
-
-
-
-
-
-    }
-
-    private void upCamera()
-    {
-        camera.translate(0, UpCamera, 0);
-        moveCamera = true;
-        Gdx.app.log("camera.position.y - ", String.valueOf(camera.position.y));
-        Gdx.app.log("camera.position.x - ", String.valueOf(camera.position.x));
-        Gdx.app.log("Y - ", String.valueOf(Y[numberBloxx]));
-    }
-
-
-    private void handleInput() {
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             camera.zoom += 0.02;
         }
@@ -248,36 +170,144 @@ public class GameScreen implements Screen
         }
     }
 
+    @Override
+    protected void update(float dt)
+    {
+        handlerInput();
+
+        for (Blox blox : bloxArray)
+        {
+            blox.update(dt);
+        }
+
+        if (bloxArray.peek().getStatus() == 2)
+        {
+            spawnRaindrop();
+        }
+
+//        camera.position.y = bloxArray.peek().getPosition().y + 20;
+
+//        bloxclass.update(dt);
+//        bird.update(dt);
+//        camera.position.x = bird.getPosition().x + 80;
+//
+//        for (Tube tube : tubes)
+//        {
+//            if (camera.position.x - (camera.viewportWidth / 2) >
+//                    tube.getPosTopTube().x + tube.getTopTube().getWidth())
+//            {
+//                tube.reposition(tube.getPosTopTube().x + ((Tube.TUBE_WIDHT + TUBE_SPACING) * TUBE_COUNT));
+//            }
+//        }
+//        camera.update();
+
+    }
+
+
+    @Override
+    public void render(SpriteBatch sb)
+    {
+        handlerInput();
+
+        // Очищаем экран и устанавливаем цвет фона черным
+        Gdx.gl.glClearColor(0, 1, 1, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        sb.setProjectionMatrix(camera.combined);
+        sb.begin();
+
+        if(Gdx.input.isTouched())
+        {
+            drop = true;
+            block[numberBloxx] = 1; // 1 - ачинает падать
+        }
+
+        if (block[numberBloxx] == 1)
+        {
+            Y[numberBloxx] -= 1500 * Gdx.graphics.getDeltaTime();
+        }
+
+        if (numberBloxx > 1)
+        {
+            if ((Y[numberBloxx-1] > camera.position.y ) && !moveCamera )
+            {
+//                Gdx.app.log("CAMera ", String.valueOf(Y[numberBloxx-1]));
+                upCamera();
+//                float i = 0;
+//                while (i < UpCamera)
+//                {
+//                    i += 0.1f;
+//                    camera.translate(0, 0.001f, 0);
+//
+//                    Gdx.app.log("CAMera ", String.valueOf(i));
+//
+//                }
+//
+//                moveCamera = true;
+            }
+        }
+
+//        for (int i = 0; i <= numberBloxx; i++)
+//        {
+//            if (numberBloxx == 0)
+//            {
+//                if (Y[numberBloxx] < 20 && block[numberBloxx] == 1)
+//                {
+//                    block[numberBloxx] = 2;// прекратил падать
+//                    numberBloxx++;
+//                    spawnRaindrop(numberBloxx);
+//                }
+//            }
+//            else if (Y[numberBloxx] < Y[numberBloxx-1]+bloxx1.getHeight() && block[numberBloxx] == 1)
+//            {
+//                block[numberBloxx] = 2;// прекратил падать
+//                moveCamera = false;
+//                numberBloxx++;
+//                if (camera.position.y < 1024)
+//                {
+//                    // нужно сделать функцию с анимацией опускания
+////                    upCamera();
+//
+//                }
+//                spawnRaindrop(numberBloxx);
+//            }
+//
+////            sb.draw(bloxx1, X[i], Y[i]);
+//        }
+//        sb.draw(bloxclass.getBlox(), bloxclass.getPosition().x, bloxclass.getPosition().y);
+
+        for (Blox blox : bloxArray)
+        {
+            sb.draw(blox.getBlox(), blox.getPosition().x, blox.getPosition().y);
+        }
+        sb.end();
+
+//         Рисуем сцену
+//        stage.act(delta);
+        stage.draw();
+
+
+
+
+
+    }
+
+    private void upCamera()
+    {
+        camera.translate(0, UpCamera, 0);
+        moveCamera = true;
+        Gdx.app.log("camera.position.y - ", String.valueOf(camera.position.y));
+        Gdx.app.log("camera.position.x - ", String.valueOf(camera.position.x));
+        Gdx.app.log("Y - ", String.valueOf(Y[numberBloxx]));
+    }
+
+
 
     @Override
     public void dispose()
     {
         // Уничтожаем сцену и объект game.
         stage.dispose();
-        game.dispose();
-    }
-
-    @Override
-    public void hide()
-    {
-    }
-
-    @Override
-    public void resume()
-    {
-    }
-
-    @Override
-    public void pause()
-    {
-    }
-
-    @Override
-    public void resize(int width, int height)
-    {
-    }
-    @Override
-    public void show()
-    {
+//        game.dispose();
     }
 }

@@ -1,26 +1,29 @@
 package ru.n_develop.tower_lite;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
-import ru.n_develop.tower_lite.screens.GameScreen;
-import ru.n_develop.tower_lite.screens.MainMenu;
+import ru.n_develop.tower_lite.states.GameStageManager;
+import ru.n_develop.tower_lite.states.MainMenu;
 
-public class N_Tower_Lite extends Game
+public class N_Tower_Lite extends ApplicationAdapter
 {
+
+    public static final int WIDHT = 480;
+    public static final int HEIGTH = 800;
+
+    private GameStageManager gsm;
 
 	private OrthographicCamera camera;
 	public SpriteBatch batch;
@@ -38,11 +41,11 @@ public class N_Tower_Lite extends Game
 	public void create () {
 
 
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 720, 1080);
+//		camera = new OrthographicCamera();
+//		camera.setToOrtho(false, 720, 1080);
 //		camera.setToOrtho(false, 400, 400);
 
-		batch = new SpriteBatch();
+
 //
 //		buttonsAtlas = new TextureAtlas("buttons.pack"); //** button atlas image **//
 //		buttonSkin = new Skin();
@@ -85,18 +88,18 @@ public class N_Tower_Lite extends Game
 		levels.setColor(Color.WHITE);
 		generator.dispose(); // Уничтожаем наш генератор за ненадобностью.
 
-		this.setScreen(new MainMenu(this));
+        batch = new SpriteBatch();
+        gsm = new GameStageManager();
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        gsm.push(new MainMenu(gsm));
 
-	}
-
-	@Override
-	public void dispose()
-	{
 	}
 
 	@Override
 	public void render ()
 	{
-		super.render();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        gsm.update(Gdx.graphics.getDeltaTime());
+        gsm.render(batch);
 	}
 }

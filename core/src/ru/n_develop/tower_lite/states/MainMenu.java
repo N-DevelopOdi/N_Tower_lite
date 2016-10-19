@@ -83,7 +83,9 @@ public class MainMenu extends State
             };
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.app.log("asd","asd");
                 gsm.set(new Box2dTest(gsm));
+
 //                gsm.set(new GameScreen(gsm,200));
                 dispose();
             };
@@ -138,6 +140,7 @@ public class MainMenu extends State
     {
         // Уничтожаем сцену и объект game.
 //        stage.dispose();
+//        play.clear();
 //        game.dispose();
     }
 }

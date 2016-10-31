@@ -10,10 +10,11 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
-import ru.n_develop.tower_lite.N_Tower_Lite;
+import ru.n_develop.tower_lite.sprintes.Blox2d;
 
 /**
  * Created by Dima on 18.10.2016.
@@ -21,14 +22,20 @@ import ru.n_develop.tower_lite.N_Tower_Lite;
 
 public class Box2dTest extends State
 {
+    private Array<Blox2d> bloxArray;
+
     private World world;
     private Box2DDebugRenderer rend;
     private OrthographicCamera camera;
-    private Body rect;
 
     private Vector2 velosity;
     private Vector2 position;
     private Vector2 position_new_blox;
+
+    long lastDropTime; // время между палением
+    private int countBlox = 0; // кол-во блоков
+    private int startY = 25; // началная позиция квадрата по Y
+    Boolean timer = false;
 
     public Box2dTest(GameStageManager gsm)
     {
@@ -45,7 +52,8 @@ public class Box2dTest extends State
         // Создаем стены
         createWall();
 
-
+        bloxArray = new Array<Blox2d>();
+        bloxArray.add(new Blox2d(10,startY + 4 * countBlox,world,Blox2d.STATIC));
     }
 
     @Override
@@ -54,35 +62,58 @@ public class Box2dTest extends State
 
         if (Gdx.input.justTouched())
         {
-//            position.y = (position_new_blox.y + 8) / 2;
-            camera.position.y = position_new_blox.y - 10;
-            creatRect(position_new_blox.x, position_new_blox.y);
-            position_new_blox.y += 4;
-            camera.update();
-
-//            camera.position.set(new Vector2(10,25f), 0);
+            // если произошло нажатие и блок не падает, подменяем его на динамический и отпускаем вниз
+            if (bloxArray.peek().getStatus() != Blox2d.MOVE)
+            {
+                position_new_blox.x = bloxArray.peek().getPosition1().x;
+                position_new_blox.y = bloxArray.peek().getPosition1().y;
+                world.destroyBody(bloxArray.peek().getRect());
+                bloxArray.add(new Blox2d(position_new_blox.x, position_new_blox.y, world, Blox2d.DINAMIC));
+                bloxArray.peek().setStatus(Blox2d.MOVE);
+                // Фиксируем время и включаем таймер
+                lastDropTime = TimeUtils.millis();
+                timer = true;
+            }
         }
     }
 
     @Override
     protected void update(float dt)
     {
+        // Проверяем касания
         handlerInput();
 
+        // если таймер включен и прошло время поднимаем камеру и создаем новый блок и выключаем таймер
+        if (timer && TimeUtils.millis() - lastDropTime > 2000)
+        {
+            position_new_blox.y += 4;
+            camera.position.y = position_new_blox.y - 10;
+            camera.update();
+            creatRectStatic(10);
+            timer = false;
+        }
+
+        for (Blox2d blox : bloxArray )
+        {
+            blox.update(dt);
+        }
+
+        // Падения не для box2d
 //        if (getStatus() == MOVE)
 //        {
-            // что такое scl
-            // добавляем скорость падения
-            velosity.add(0, 0);
-
-            // и умножаем ее на скаляр времени
-            velosity.scl(dt);
-            // добавляем новое значение
-            position.add(0, velosity.y);
-//            position.add(velosity.x, MOVEMENT * dt);
-
-            velosity.scl(1 / dt);
+//            // что такое scl
+//            // добавляем скорость падения
+//            velosity.add(0, 0);
+//
+//            // и умножаем ее на скаляр времени
+//            velosity.scl(dt);
+//            // добавляем новое значение
+//            position.add(0, velosity.y);
+////            position.add(velosity.x, MOVEMENT * dt);
+//
+//            velosity.scl(1 / dt);
 //        }
+
     }
 
     @Override
@@ -92,10 +123,8 @@ public class Box2dTest extends State
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         rend.render(world,camera.combined);
-
-//        camera.position.set(position.x, position.y, 0);
+        // вроде как говорим что 60 кадров в секунду и еще что-то
         world.step(1/60f, 4, 4);
-
     }
 
     @Override
@@ -104,25 +133,10 @@ public class Box2dTest extends State
 
     }
 
-    private void creatRect(float x, float y)
+    private void creatRectStatic(float x)
     {
-        BodyDef bDef = new BodyDef();
-        bDef.type = BodyDef.BodyType.DynamicBody;
-        bDef.position.set(x,y);
-
-        rect = world.createBody(bDef);
-
-        FixtureDef fDef = new FixtureDef();
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(2,2);
-
-        fDef.shape = shape;
-        // кг
-        fDef.density = 2;
-        fDef.restitution = 0.01f;
-
-        rect.createFixture(fDef);
+        countBlox++;
+        bloxArray.add(new Blox2d(x,startY + 4 * countBlox,world,Blox2d.STATIC));
     }
 
     private void createWall()

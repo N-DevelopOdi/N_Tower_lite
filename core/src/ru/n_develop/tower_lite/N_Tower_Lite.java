@@ -20,8 +20,8 @@ import ru.n_develop.tower_lite.states.MainMenu;
 public class N_Tower_Lite extends ApplicationAdapter
 {
 
-    public static final int WIDHT = 480;
-    public static final int HEIGTH = 800;
+    public static final int WIDHT = 50;
+    public static final int HEIGTH = 75;
 
     private GameStageManager gsm;
 

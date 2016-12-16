@@ -125,9 +125,10 @@ public class MainMenu extends State
 //        Gdx.app.log("ww", String.valueOf(play.getX()));
 
         // Очищаем экран и устанавливаем цвет фона черным
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         sb.begin();
+        gsm.font.draw(sb,"146545623",5,5);
         sb.end();
 
         // Рисуем сцену
